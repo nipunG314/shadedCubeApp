@@ -1,12 +1,16 @@
 #include "app.h"
 
-void VulkanSampleApp::run() {
-    initWindow();
-    initVulkan();
-    mainLoop();
+const int WIDTH = 800;
+const int HEIGHT = 600;
+const std::string TITLE = "Vulkan";
+
+VulkanSampleApp::VulkanSampleApp() {
+    window.reset(new Window(WIDTH, HEIGHT, TITLE));
 }
 
-void VulkanSampleApp::initWindow() {}
-void VulkanSampleApp::initVulkan() {}
-void VulkanSampleApp::mainLoop() {}
+void VulkanSampleApp::run() {
+    while(!window->shouldClose()) {
+        window->pollEvents();
+    }
+}
 
