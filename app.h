@@ -1,7 +1,7 @@
 #ifndef VULKAN_APP_H
 #define VULKAN_APP_H
 
-#include "vulkan/include/vulkan/vulkan.hpp"
+#include "vulkan/include/vulkan/vulkan.h"
 #include "window.h"
 
 #include <stdexcept>
@@ -10,15 +10,20 @@
 class VulkanSampleApp {
     public:
         VulkanSampleApp();
+        ~VulkanSampleApp();
         void run();
     private:
         // Helpers
         std::vector<const char *> getRequiredExtensions();
+        inline void handleVkResult(VkResult result, const char *message) {
+            if (result != VK_SUCCESS)
+                throw std::runtime_error(message);
+        }
 
         void createInstance();
 
-        std::unique_ptr<Window> window;
-        vk::UniqueInstance instance;
+        Window *window;
+        VkInstance instance;
 };
 
 #endif

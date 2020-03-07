@@ -1,13 +1,16 @@
 #include "app.h"
-#include "vulkan/vulkan.hpp"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
 const std::string TITLE = "Vulkan";
 
 VulkanSampleApp::VulkanSampleApp() {
-    window.reset(new Window(WIDTH, HEIGHT, TITLE));
+    window = new Window(WIDTH, HEIGHT, TITLE);
     createInstance();
+}
+
+VulkanSampleApp::~VulkanSampleApp() {
+    vkDestroyInstance(instance, nullptr);
 }
 
 void VulkanSampleApp::run() {
@@ -22,18 +25,25 @@ std::vector<const char *> VulkanSampleApp::getRequiredExtensions() {
 }
 
 void VulkanSampleApp::createInstance() {
-    vk::ApplicationInfo appInfo("Vulkan Sample App", 1, "", 1, VK_API_VERSION_1_2);
+    VkApplicationInfo appInfo = {};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "VulkanSampleApp";
+    appInfo.applicationVersion = 1;
+    appInfo.pEngineName = "";
+    appInfo.engineVersion = 1;
+    appInfo.apiVersion = VK_API_VERSION_1_2;
+
     auto extensions = getRequiredExtensions();
 
-    vk::InstanceCreateInfo instanceCreateInfo(
-        {},
-        &appInfo,
-        0,
-        nullptr,
-        static_cast<uint32_t>(extensions.size()),
-        extensions.data()
-    );
+    VkInstanceCreateInfo instanceCreateInfo = {};
+    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instanceCreateInfo.flags = {};
+    instanceCreateInfo.pApplicationInfo = &appInfo;
+    instanceCreateInfo.enabledLayerCount = 0;
+    instanceCreateInfo.ppEnabledLayerNames = nullptr;
+    instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-    instance = vk::createInstanceUnique(instanceCreateInfo);
+    handleVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), "Failed to create Vulkan Instance");
 }
 
