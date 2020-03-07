@@ -4,6 +4,7 @@
 #include "vulkan/include/vulkan/vulkan.h"
 #include "window.h"
 
+#include <iostream>
 #include <stdexcept>
 #include <memory>
 
@@ -13,6 +14,13 @@ class VulkanSampleApp {
         ~VulkanSampleApp();
         void run();
     private:
+        void createInstance();
+        void setupDebugMessenger();
+
+        Window *window;
+        VkInstance instance;
+        VkDebugUtilsMessengerEXT debugMessenger;
+
         // Helpers
         std::vector<const char *> getRequiredExtensions();
         inline void handleVkResult(VkResult result, const char *message) {
@@ -20,11 +28,15 @@ class VulkanSampleApp {
                 throw std::runtime_error(message);
         }
         bool checkValidationLayerSupport();
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+            void *pUserData) {
+                std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
 
-        void createInstance();
-
-        Window *window;
-        VkInstance instance;
+                return VK_FALSE;
+        }
 };
 
 #endif

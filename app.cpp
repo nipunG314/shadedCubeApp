@@ -1,5 +1,4 @@
 #include "app.h"
-#include <iostream>
 #include <cstring>
 
 const int WIDTH = 800;
@@ -16,12 +15,34 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+        instance,
+        "vkCreateDebugUtilsMessengerEXT"
+    );
+    if (func != nullptr)
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+        instance,
+        "vkDestroyDebugUtilsMessengerEXT"
+    );
+    if (func != nullptr)
+        func(instance, debugMessenger, pAllocator);
+}
+
 VulkanSampleApp::VulkanSampleApp() {
     window = new Window(WIDTH, HEIGHT, TITLE);
     createInstance();
+    setupDebugMessenger();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
+    if (enableValidationLayers)
+        destroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     vkDestroyInstance(instance, nullptr);
 }
 
@@ -33,6 +54,10 @@ void VulkanSampleApp::run() {
 
 std::vector<const char *> VulkanSampleApp::getRequiredExtensions() {
     auto extensions = window->getRequiredExtensions();
+
+    if (enableValidationLayers)
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
     return extensions;
 }
 
@@ -98,5 +123,22 @@ void VulkanSampleApp::createInstance() {
     instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
     handleVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), "Failed to create Vulkan Instance");
+}
+
+void VulkanSampleApp::setupDebugMessenger() {
+    if (!enableValidationLayers) return;
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo.pfnUserCallback = debugCallback;
+    createInfo.pUserData = nullptr;
+
+    handleVkResult(createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "Failed to setup Debug Messenger!");
 }
 
