@@ -1,0 +1,5 @@
+.git
+.clangd
+compile_commands.json
+deps.txt
+VulkanSampleApp
