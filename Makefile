@@ -10,7 +10,7 @@ VulkanSampleApp: main.cpp
 
 test: VulkanSampleApp
 	LD_LIBRARY_PATH=$(VULKAN_SDK_PATH)/lib
-	VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/explicit_layer.d
+	VK_LAYER_PATH=$(VULKAN_SDK_PATH)/etc/vulkan/explicit_layer.d
 	./VulkanSampleApp
 
 clean:

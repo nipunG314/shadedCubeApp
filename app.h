@@ -19,6 +19,7 @@ class VulkanSampleApp {
             if (result != VK_SUCCESS)
                 throw std::runtime_error(message);
         }
+        bool checkValidationLayerSupport();
 
         void createInstance();
 
