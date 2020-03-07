@@ -12,7 +12,13 @@ class VulkanSampleApp {
         VulkanSampleApp();
         void run();
     private:
-        std::shared_ptr<Window> window;
+        // Helpers
+        std::vector<const char *> getRequiredExtensions();
+
+        void createInstance();
+
+        std::unique_ptr<Window> window;
+        vk::UniqueInstance instance;
 };
 
 #endif

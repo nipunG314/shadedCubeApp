@@ -4,9 +4,8 @@
 #include "app.h"
 
 int main() {
-    VulkanSampleApp app;
-
     try {
+        VulkanSampleApp app;
         app.run();
     } catch (vk::SystemError& err) {
         std::cerr << "vk::SystemError: " << err.what() << std::endl;

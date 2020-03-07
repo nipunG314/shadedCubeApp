@@ -4,6 +4,7 @@
 #include "glfw-3.3.2/include/GLFW/glfw3.h"
 
 #include <string>
+#include <vector>
 
 class Window {
     public:
@@ -26,6 +27,15 @@ class Window {
         }
 
         void pollEvents() { glfwPollEvents(); }
+
+        std::vector<const char *> getRequiredExtensions() {
+            uint32_t glfwExtensionCount = 0;
+            const char **glfwExtensions;
+            glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+            std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+            return extensions;
+        }
 
     private:
         int width, height;

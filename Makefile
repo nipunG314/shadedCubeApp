@@ -4,7 +4,7 @@ LDFLAGS = -L$(VULKAN_SDK_PATH)/lib `pkg-config --static --libs glfw3` -lvulkan -
 SOURCES = main.cpp app.cpp
 
 VulkanSampleApp: main.cpp
-	g++ $(CFLAGS) -o VulkanSampleApp $(SOURCES) $(LDFLAGS)
+	g++ $(CFLAGS) -g -o VulkanSampleApp $(SOURCES) $(LDFLAGS)
 
 .PHONY: test clean
 
