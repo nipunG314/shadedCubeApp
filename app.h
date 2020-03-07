@@ -1,6 +1,7 @@
 #ifndef VULKAN_APP_H
 #define VULKAN_APP_H
 
+#include "vulkan/include/vulkan/vulkan.hpp"
 #include "window.h"
 
 #include <stdexcept>
