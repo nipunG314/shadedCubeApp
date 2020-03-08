@@ -12,9 +12,10 @@
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsQueue;
     std::optional<uint32_t> computeQueue;
+    std::optional<uint32_t> presentQueue;
 
     bool has_value() {
-        return graphicsQueue.has_value() && computeQueue.has_value();
+        return graphicsQueue.has_value() && computeQueue.has_value() && presentQueue.has_value();
     }
 };
 
@@ -38,6 +39,7 @@ class VulkanSampleApp {
 
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
+        VkQueue graphicsQueue, computeQueue, presentQueue;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

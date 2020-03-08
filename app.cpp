@@ -1,5 +1,6 @@
 #include "app.h"
 #include <cstring>
+#include <set>
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -166,6 +167,11 @@ QueueFamilyIndices VulkanSampleApp::findQueueFamilyIndices(VkPhysicalDevice devi
         if (!indices.computeQueue.has_value() && queue.queueFlags & VK_QUEUE_COMPUTE_BIT)
             indices.computeQueue = i;
 
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        if (presentSupport)
+            indices.presentQueue = i;
+
         if (indices.has_value())
             break;
 
@@ -218,24 +224,20 @@ void VulkanSampleApp::createLogicalDevice() {
     auto indices = findQueueFamilyIndices(physicalDevice);
     float queuePriority = 1.0f;
 
-    // Graphics Queue Create Info
-    VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {};
-    graphicsQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    graphicsQueueCreateInfo.queueCount = 1;
-    graphicsQueueCreateInfo.queueFamilyIndex = indices.graphicsQueue.value();
-    graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = {
+        indices.graphicsQueue.value(),
+        indices.computeQueue.value(),
+        indices.presentQueue.value()
+    };
 
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = {graphicsQueueCreateInfo};
-
-    if (indices.computeQueue.value() != indices.graphicsQueue.value()) {
-        // Compute Queue Create Info
-        VkDeviceQueueCreateInfo computeQueueCreateInfo = {};
-        computeQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        computeQueueCreateInfo.queueCount = 1;
-        computeQueueCreateInfo.queueFamilyIndex = indices.computeQueue.value();
-        computeQueueCreateInfo.pQueuePriorities = &queuePriority;
-
-        queueCreateInfos.push_back(computeQueueCreateInfo);
+    for(uint32_t queueFamily: uniqueQueueFamilies) {
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
     }
 
     VkPhysicalDeviceFeatures features = {};
@@ -260,5 +262,8 @@ void VulkanSampleApp::createLogicalDevice() {
         createInfo.enabledLayerCount = 0;
 
     handleVkResult(vkCreateDevice(physicalDevice, &createInfo, nullptr,&device), "Failed to create Logical Device!");
+    vkGetDeviceQueue(device, indices.graphicsQueue.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, indices.computeQueue.value(), 0, &computeQueue);
+    vkGetDeviceQueue(device, indices.presentQueue.value(), 0, &presentQueue);
 }
 
