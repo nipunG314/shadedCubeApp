@@ -58,9 +58,13 @@ void VulkanSampleApp::run() {
 std::vector<const char *> VulkanSampleApp::getRequiredExtensions() {
     auto extensions = window->getRequiredExtensions();
 
-    if (enableValidationLayers)
+    if (enableValidationLayers) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-
+    
+        std::cout << "Required Extensions:\n";
+        for(const char *extensionName: extensions)
+            std::cout << extensionName << "\n";
+    }
     return extensions;
 }
 
