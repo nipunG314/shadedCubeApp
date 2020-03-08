@@ -27,11 +27,13 @@ class VulkanSampleApp {
         void createInstance();
         void setupDebugMessenger();
         void selectPhysicalDevice();
+        void createLogicalDevice();
 
         Window *window;
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkDevice device;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

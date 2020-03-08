@@ -39,9 +39,11 @@ VulkanSampleApp::VulkanSampleApp() {
     createInstance();
     setupDebugMessenger();
     selectPhysicalDevice();
+    createLogicalDevice();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
+    vkDestroyDevice(device, nullptr);
     if (enableValidationLayers)
         destroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     vkDestroyInstance(instance, nullptr);
@@ -200,5 +202,53 @@ void VulkanSampleApp::selectPhysicalDevice() {
 
     if (physicalDevice == VK_NULL_HANDLE)
         throw std::runtime_error("Failed to find a suitable physical device!");
+}
+
+void VulkanSampleApp::createLogicalDevice() {
+    auto indices = findQueueFamilyIndices(physicalDevice);
+    float queuePriority = 1.0f;
+
+    // Graphics Queue Create Info
+    VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {};
+    graphicsQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    graphicsQueueCreateInfo.queueCount = 1;
+    graphicsQueueCreateInfo.queueFamilyIndex = indices.graphicsQueue.value();
+    graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
+
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = {graphicsQueueCreateInfo};
+
+    if (indices.computeQueue.value() != indices.graphicsQueue.value()) {
+        // Compute Queue Create Info
+        VkDeviceQueueCreateInfo computeQueueCreateInfo = {};
+        computeQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        computeQueueCreateInfo.queueCount = 1;
+        computeQueueCreateInfo.queueFamilyIndex = indices.computeQueue.value();
+        computeQueueCreateInfo.pQueuePriorities = &queuePriority;
+
+        queueCreateInfos.push_back(computeQueueCreateInfo);
+    }
+
+    VkPhysicalDeviceFeatures features = {};
+
+    // Device Create Info
+    VkDeviceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pEnabledFeatures = &features;
+    createInfo.enabledExtensionCount = 0;
+    // Add Swapchain extensions on adding the Swapchain
+    createInfo.enabledExtensionCount = 0;
+
+    // Add Device-level validation layers
+    // to comply with out-of-date Vulkan
+    // implementations
+    if (enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    } else
+        createInfo.enabledLayerCount = 0;
+
+    handleVkResult(vkCreateDevice(physicalDevice, &createInfo, nullptr,&device), "Failed to create Logical Device!");
 }
 
