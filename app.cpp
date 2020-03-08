@@ -38,6 +38,7 @@ VulkanSampleApp::VulkanSampleApp() {
     window = new Window(WIDTH, HEIGHT, TITLE);
     createInstance();
     setupDebugMessenger();
+    selectPhysicalDevice();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
@@ -140,5 +141,31 @@ void VulkanSampleApp::setupDebugMessenger() {
     createInfo.pUserData = nullptr;
 
     handleVkResult(createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "Failed to setup Debug Messenger!");
+}
+
+bool isDeviceSuitable(VkPhysicalDevice device) {
+    // Add suitability checks as the need arises
+    return true;
+}
+
+void VulkanSampleApp::selectPhysicalDevice() {
+    uint32_t deviceCount;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    if (deviceCount == 0)
+        throw std::runtime_error("Failed to find any Vulkan-compatible physical devices!");
+
+    std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
+
+    for(const auto& device: physicalDevices) {
+        if (isDeviceSuitable(device)) {
+            physicalDevice = device;
+            break;
+        }
+    }
+
+    if (physicalDevice == VK_NULL_HANDLE)
+        throw std::runtime_error("Failed to find a suitable physical device!");
 }
 
