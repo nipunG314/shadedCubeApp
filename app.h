@@ -5,8 +5,18 @@
 #include "window.h"
 
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <memory>
+
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsQueue;
+    std::optional<uint32_t> computeQueue;
+
+    bool has_value() {
+        return graphicsQueue.has_value() && computeQueue.has_value();
+    }
+};
 
 class VulkanSampleApp {
     public:
@@ -25,10 +35,15 @@ class VulkanSampleApp {
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();
+
         inline void handleVkResult(VkResult result, const char *message) {
             if (result != VK_SUCCESS)
                 throw std::runtime_error(message);
         }
+
+        QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device);
+        bool isDeviceSuitable(VkPhysicalDevice device);
+
         bool checkValidationLayerSupport();
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

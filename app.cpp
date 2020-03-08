@@ -143,9 +143,42 @@ void VulkanSampleApp::setupDebugMessenger() {
     handleVkResult(createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "Failed to setup Debug Messenger!");
 }
 
-bool isDeviceSuitable(VkPhysicalDevice device) {
+QueueFamilyIndices VulkanSampleApp::findQueueFamilyIndices(VkPhysicalDevice device) {
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    std::vector<VkQueueFamilyProperties> properties(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, properties.data());
+
+    int i=0;
+    for(const auto& queue: properties) {
+        if (!indices.graphicsQueue.has_value() && queue.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            indices.graphicsQueue = i;
+        if (!indices.computeQueue.has_value() && queue.queueFlags & VK_QUEUE_COMPUTE_BIT)
+            indices.computeQueue = i;
+
+        if (indices.has_value())
+            break;
+
+        i++;
+    }
+
+    return indices;
+}
+
+bool VulkanSampleApp::isDeviceSuitable(VkPhysicalDevice device) {
     // Add suitability checks as the need arises
-    return true;
+    auto indices = findQueueFamilyIndices(device);
+
+    if (enableValidationLayers) {
+        std::cout << "QueueFamilyIndices:\n";
+        std::cout << "GraphicsQueue: " << indices.graphicsQueue.has_value() << "\n";
+        std::cout << "ComputeQueue: " << indices.computeQueue.has_value() << "\n";
+        std::cout << "QueueFamilyIndices: " << indices.has_value() << "\n";
+    }
+
+    return indices.has_value();
 }
 
 void VulkanSampleApp::selectPhysicalDevice() {
