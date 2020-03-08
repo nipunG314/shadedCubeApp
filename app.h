@@ -26,12 +26,16 @@ class VulkanSampleApp {
     private:
         void createInstance();
         void setupDebugMessenger();
+        void createSurface();
         void selectPhysicalDevice();
         void createLogicalDevice();
 
-        Window *window;
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
+
+        Window *window;
+        VkSurfaceKHR surface;
+
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
 

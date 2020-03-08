@@ -38,12 +38,14 @@ VulkanSampleApp::VulkanSampleApp() {
     window = new Window(WIDTH, HEIGHT, TITLE);
     createInstance();
     setupDebugMessenger();
+    createSurface();
     selectPhysicalDevice();
     createLogicalDevice();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
     vkDestroyDevice(device, nullptr);
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     if (enableValidationLayers)
         destroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     vkDestroyInstance(instance, nullptr);
@@ -171,6 +173,10 @@ QueueFamilyIndices VulkanSampleApp::findQueueFamilyIndices(VkPhysicalDevice devi
     }
 
     return indices;
+}
+
+void VulkanSampleApp::createSurface() {
+   handleVkResult(glfwCreateWindowSurface(instance, window->getWindow(), nullptr, &surface), "Failed to create Window Surface!");
 }
 
 bool VulkanSampleApp::isDeviceSuitable(VkPhysicalDevice device) {
