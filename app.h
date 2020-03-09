@@ -36,7 +36,7 @@ class VulkanSampleApp {
         void createSurface();
         void selectPhysicalDevice();
         void createLogicalDevice();
-        void createSwapChain();
+        void createSwapchain();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -44,6 +44,9 @@ class VulkanSampleApp {
         Window *window;
         VkSurfaceKHR surface;
         VkSwapchainKHR swapchain;
+        std::vector<VkImage> swapchainImages;
+        VkFormat swapchainImageFormat;
+        VkExtent2D swapchainExtent;
 
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;

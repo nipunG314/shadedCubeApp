@@ -46,6 +46,7 @@ VulkanSampleApp::VulkanSampleApp() {
     createSurface();
     selectPhysicalDevice();
     createLogicalDevice();
+    createSwapchain();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
@@ -367,7 +368,7 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
     return actualExtent;
 }
 
-void VulkanSampleApp::createSwapChain() {
+void VulkanSampleApp::createSwapchain() {
     auto swapchainSupport = querySwapchainSupport(physicalDevice);
     auto surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
     auto presentMode = chooseSwapPresentMode(swapchainSupport.presentModes);
@@ -408,5 +409,11 @@ void VulkanSampleApp::createSwapChain() {
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     handleVkResult(vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain), "Failed to create Swap Chain!");
+
+   vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
+   swapchainImages.resize(imageCount);
+   vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data());
+    swapchainImageFormat = surfaceFormat.format;
+    swapchainExtent = extent;
 }
 
