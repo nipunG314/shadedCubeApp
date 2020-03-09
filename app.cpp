@@ -9,6 +9,9 @@ const std::string TITLE = "Vulkan";
 const std::vector<const char *> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
+const std::vector<const char *> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -185,9 +188,25 @@ void VulkanSampleApp::createSurface() {
    handleVkResult(glfwCreateWindowSurface(instance, window->getWindow(), nullptr, &surface), "Failed to create Window Surface!");
 }
 
+bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for(const auto& extension: availableExtensions)
+        requiredExtensions.erase(extension.extensionName);
+
+    return requiredExtensions.empty();
+}
+
 bool VulkanSampleApp::isDeviceSuitable(VkPhysicalDevice device) {
     // Add suitability checks as the need arises
     auto indices = findQueueFamilyIndices(device);
+    bool extensionsSupported = checkDeviceExtensionSupport(device);
 
     if (enableValidationLayers) {
         std::cout << "QueueFamilyIndices:\n";
@@ -196,7 +215,7 @@ bool VulkanSampleApp::isDeviceSuitable(VkPhysicalDevice device) {
         std::cout << "QueueFamilyIndices: " << indices.has_value() << "\n";
     }
 
-    return indices.has_value();
+    return indices.has_value() && extensionsSupported;
 }
 
 void VulkanSampleApp::selectPhysicalDevice() {
