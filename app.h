@@ -19,6 +19,12 @@ struct QueueFamilyIndices {
     }
 };
 
+struct SwapchainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
 class VulkanSampleApp {
     public:
         VulkanSampleApp();
@@ -30,12 +36,14 @@ class VulkanSampleApp {
         void createSurface();
         void selectPhysicalDevice();
         void createLogicalDevice();
+        void createSwapChain();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
 
         Window *window;
         VkSurfaceKHR surface;
+        VkSwapchainKHR swapchain;
 
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
@@ -51,6 +59,8 @@ class VulkanSampleApp {
 
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device);
         bool isDeviceSuitable(VkPhysicalDevice device);
+
+        SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice physicalDevice);
 
         bool checkValidationLayerSupport();
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
