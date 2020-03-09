@@ -409,6 +409,10 @@ void VulkanSampleApp::createImageViews() {
 }
 
 void VulkanSampleApp::createGraphicsPipeline() {
+    auto vertShaderModule = createShaderModule(device, "shaders/vert.spv");
+    auto fragShaderModule = createShaderModule(device, "shaders/frag.spv");
 
+    vkDestroyShaderModule(device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 

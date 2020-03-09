@@ -73,3 +73,17 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         return VK_FALSE;
 }
 
+VkShaderModule createShaderModule(const VkDevice& device, const std::string& fileName) {
+    auto shaderCode = readBinary(fileName);
+
+    VkShaderModuleCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = shaderCode.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(shaderCode.data());
+
+    VkShaderModule shaderModule;
+    handleVkResult(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule), "Failed to create Shader Module!");
+
+    return shaderModule;
+}
+
