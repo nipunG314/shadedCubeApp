@@ -267,9 +267,8 @@ void VulkanSampleApp::createLogicalDevice() {
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pEnabledFeatures = &features;
-    createInfo.enabledExtensionCount = 0;
-    // Add Swapchain extensions on adding the Swapchain
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     // Add Device-level validation layers
     // to comply with out-of-date Vulkan
