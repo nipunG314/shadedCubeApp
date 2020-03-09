@@ -37,20 +37,23 @@ class VulkanSampleApp {
         void selectPhysicalDevice();
         void createLogicalDevice();
         void createSwapchain();
+        void createImageViews();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
 
         Window *window;
         VkSurfaceKHR surface;
-        VkSwapchainKHR swapchain;
-        std::vector<VkImage> swapchainImages;
-        VkFormat swapchainImageFormat;
-        VkExtent2D swapchainExtent;
 
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
         VkQueue graphicsQueue, computeQueue, presentQueue;
+
+        VkSwapchainKHR swapchain;
+        std::vector<VkImage> swapchainImages;
+        VkFormat swapchainImageFormat;
+        VkExtent2D swapchainExtent;
+        std::vector<VkImageView> swapchainImageViews;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();
