@@ -38,6 +38,7 @@ class VulkanSampleApp {
         void createLogicalDevice();
         void createSwapchain();
         void createImageViews();
+        void createGraphicsPipeline();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
