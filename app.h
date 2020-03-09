@@ -59,26 +59,12 @@ class VulkanSampleApp {
         // Helpers
         std::vector<const char *> getRequiredExtensions();
 
-        inline void handleVkResult(VkResult result, const char *message) {
-            if (result != VK_SUCCESS)
-                throw std::runtime_error(message);
-        }
-
         QueueFamilyIndices findQueueFamilyIndices(VkPhysicalDevice device);
         bool isDeviceSuitable(VkPhysicalDevice device);
 
         SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice physicalDevice);
 
         bool checkValidationLayerSupport();
-        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT messageType,
-            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-            void *pUserData) {
-                std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
-
-                return VK_FALSE;
-        }
 };
 
 #endif

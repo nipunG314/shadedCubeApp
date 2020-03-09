@@ -1,6 +1,9 @@
 #include "vulkan/include/vulkan/vulkan.h"
 
+#include <iostream>
+#include <stdexcept>
 #include <vector>
+#include <fstream>
 
 VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
@@ -37,5 +40,36 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& avai
     }
 
     return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+std::vector<char> readBinary(const std::string& fileName) {
+    std::ifstream file(fileName, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open())
+        throw std::runtime_error("Failed to open binary file!");
+
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+
+    return buffer;
+}
+
+inline void handleVkResult(VkResult result, const char *message) {
+    if (result != VK_SUCCESS)
+        throw std::runtime_error(message);
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+    void *pUserData) {
+        std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
+
+        return VK_FALSE;
 }
 
