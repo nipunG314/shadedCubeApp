@@ -87,6 +87,8 @@ class VulkanSampleApp {
         VkExtent2D swapchainExtent;
         std::vector<VkImageView> swapchainImageViews;
 
+        VkPipelineLayout pipelineLayout;
+
         // Helpers
         std::vector<const char *> getRequiredExtensions();
 
