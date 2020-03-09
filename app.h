@@ -92,6 +92,7 @@ class VulkanSampleApp {
 
         VkRenderPass renderPass;
         VkPipelineLayout pipelineLayout;
+        VkPipeline graphicsPipeline;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();
