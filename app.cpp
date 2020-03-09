@@ -477,6 +477,17 @@ void VulkanSampleApp::createGraphicsPipeline() {
     auto bindingDescription = Vertex::getBindingDescription();
     auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
+    if (enableValidationLayers) {
+        std::cout << "AttributeDescriptions:\n";
+        for(size_t i=0; i<attributeDescriptions.size(); i++) {
+            std::cout << "AttributeDescription #" << i+1 << "\n";
+
+            std::cout << "description.format: " << attributeDescriptions[i].format << "\n";
+
+            std::cout << "\n";
+        }
+    }
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
