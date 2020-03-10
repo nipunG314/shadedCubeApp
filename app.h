@@ -74,6 +74,7 @@ class VulkanSampleApp {
         void createRenderPass();
         void createGraphicsPipeline();
         void createFramebuffers();
+        void createVertexBuffer();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -95,6 +96,8 @@ class VulkanSampleApp {
         VkRenderPass renderPass;
         VkPipelineLayout pipelineLayout;
         VkPipeline graphicsPipeline;
+
+        VkBuffer vertexBuffer;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

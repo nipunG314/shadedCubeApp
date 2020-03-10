@@ -18,9 +18,11 @@ VulkanSampleApp::VulkanSampleApp() {
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
+    createVertexBuffer();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
     for(auto framebuffer: swapchainFramebuffers)
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
@@ -591,5 +593,15 @@ void VulkanSampleApp::createFramebuffers() {
 
         handleVkResult(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapchainFramebuffers[i]), "Failed to create Framebuffer!");
     }
+}
+
+void VulkanSampleApp::createVertexBuffer() {
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    handleVkResult(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer), "Failed to create the Vertex Buffer!");
 }
 
