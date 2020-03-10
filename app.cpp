@@ -597,6 +597,7 @@ void VulkanSampleApp::createFramebuffers() {
 }
 
 void VulkanSampleApp::createVertexBuffer() {
+    // Creating the Vertex Buffer
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = sizeof(vertices[0]) * vertices.size();
@@ -605,6 +606,7 @@ void VulkanSampleApp::createVertexBuffer() {
 
     handleVkResult(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer), "Failed to create the Vertex Buffer!");
 
+    // Allocating memory for the Vertex Buffer
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
 
@@ -621,5 +623,11 @@ void VulkanSampleApp::createVertexBuffer() {
     handleVkResult(vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory), "Failed to allocate Vertex Buffer memory");
 
     vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+    // Filling the Vertex Buffer
+    void *data;
+    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+    vkUnmapMemory(device, vertexBufferMemory);
 }
 
