@@ -73,6 +73,7 @@ class VulkanSampleApp {
         void createImageViews();
         void createRenderPass();
         void createGraphicsPipeline();
+        void createFramebuffers();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -89,6 +90,7 @@ class VulkanSampleApp {
         VkFormat swapchainImageFormat;
         VkExtent2D swapchainExtent;
         std::vector<VkImageView> swapchainImageViews;
+        std::vector<VkFramebuffer> swapchainFramebuffers;
 
         VkRenderPass renderPass;
         VkPipelineLayout pipelineLayout;

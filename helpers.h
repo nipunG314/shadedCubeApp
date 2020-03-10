@@ -1,3 +1,6 @@
+#ifndef VULKAN_HELPERS_H
+#define VULKAN_HELPERS_H
+
 #include "vulkan/include/vulkan/vulkan.h"
 
 #include <iostream>
@@ -86,4 +89,5 @@ VkShaderModule createShaderModule(const VkDevice& device, const std::string& fil
 
     return shaderModule;
 }
+#endif
 
