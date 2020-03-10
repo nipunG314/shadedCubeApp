@@ -98,6 +98,7 @@ class VulkanSampleApp {
         VkPipeline graphicsPipeline;
 
         VkBuffer vertexBuffer;
+        VkDeviceMemory vertexBufferMemory;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

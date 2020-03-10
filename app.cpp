@@ -23,6 +23,7 @@ VulkanSampleApp::VulkanSampleApp() {
 
 VulkanSampleApp::~VulkanSampleApp() {
     vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
     for(auto framebuffer: swapchainFramebuffers)
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
@@ -603,5 +604,22 @@ void VulkanSampleApp::createVertexBuffer() {
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     handleVkResult(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer), "Failed to create the Vertex Buffer!");
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(
+            physicalDevice,
+            memRequirements.memoryTypeBits,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    );
+
+    handleVkResult(vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory), "Failed to allocate Vertex Buffer memory");
+
+    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
 }
 
