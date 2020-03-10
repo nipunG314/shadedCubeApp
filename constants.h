@@ -2,6 +2,7 @@
 #define VULKAN_CONSTANTS_H
 
 #include "vulkan/include/vulkan/vulkan.h"
+#include "app.h"
 
 #include <string>
 #include <vector>
@@ -22,6 +23,13 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
+
+// Vertex Input data
+const std::vector<Vertex> vertices = {
+    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
 
 #endif
 
