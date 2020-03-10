@@ -75,6 +75,8 @@ class VulkanSampleApp {
         void createGraphicsPipeline();
         void createFramebuffers();
         void createVertexBuffer();
+        void createCommandPool();
+        void createCommandBuffers();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -99,6 +101,9 @@ class VulkanSampleApp {
 
         VkBuffer vertexBuffer;
         VkDeviceMemory vertexBufferMemory;
+
+        VkCommandPool commandPool;
+        std::vector<VkCommandBuffer> commandBuffers;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

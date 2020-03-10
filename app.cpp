@@ -19,9 +19,12 @@ VulkanSampleApp::VulkanSampleApp() {
     createGraphicsPipeline();
     createFramebuffers();
     createVertexBuffer();
+    createCommandPool();
+    createCommandBuffers();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
+    vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
     for(auto framebuffer: swapchainFramebuffers)
@@ -629,5 +632,58 @@ void VulkanSampleApp::createVertexBuffer() {
     vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
     memcpy(data, vertices.data(), (size_t) bufferInfo.size);
     vkUnmapMemory(device, vertexBufferMemory);
+}
+
+void VulkanSampleApp::createCommandPool() {
+    auto queueFamilyIndices = findQueueFamilyIndices(physicalDevice);
+
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsQueue.value();
+    poolInfo.flags = 0;
+
+    handleVkResult(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool), "Failed to create command pool!");
+}
+
+void VulkanSampleApp::createCommandBuffers() {
+    commandBuffers.resize(swapchainFramebuffers.size());
+
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+
+    handleVkResult(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()), "Failed to allocate command buffers!");
+
+    for(size_t i = 0; i < commandBuffers.size(); i++) {
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = 0;
+        beginInfo.pInheritanceInfo = nullptr;
+
+        handleVkResult(vkBeginCommandBuffer(commandBuffers[i], &beginInfo),"Failed to begin recording command buffer!");
+
+        VkRenderPassBeginInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = swapchainFramebuffers[i];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapchainExtent;
+
+        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+        vkCmdEndRenderPass(commandBuffers[i]);
+
+        handleVkResult(vkEndCommandBuffer(commandBuffers[i]), "Failed to record command buffer!");
+    }
 }
 
