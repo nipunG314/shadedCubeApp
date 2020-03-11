@@ -29,6 +29,10 @@ class Window {
         void pollEvents() { glfwPollEvents(); }
         GLFWwindow *getWindow() { return window; }
 
+        void getFramebufferSize(int *width, int *height) {
+            glfwGetFramebufferSize(window, width, height);
+        }
+
         std::vector<const char *> getRequiredExtensions() {
             uint32_t glfwExtensionCount = 0;
             const char **glfwExtensions;

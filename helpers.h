@@ -2,6 +2,7 @@
 #define VULKAN_HELPERS_H
 
 #include "vulkan/include/vulkan/vulkan.h"
+#include "window.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -43,6 +44,38 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& avai
     }
 
     return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D chooseSwapExtent(Window *window, const VkSurfaceCapabilitiesKHR& capabilities) {
+    if (capabilities.currentExtent.width != UINT32_MAX)
+        return capabilities.currentExtent;
+
+    int width = 0, height = 0;
+    while (width == 0 || height == 0) {
+        window->getFramebufferSize(&width, &height);
+    }
+
+    VkExtent2D actualExtent = {
+        static_cast<uint32_t>(width),
+        static_cast<uint32_t>(height)
+    };
+
+    actualExtent.width = std::max(
+        capabilities.minImageExtent.width,
+        std::min(
+            capabilities.maxImageExtent.width,
+            actualExtent.width
+        )
+    );
+    actualExtent.height = std::max(
+        capabilities.minImageExtent.height,
+        std::min(
+            capabilities.maxImageExtent.height,
+            actualExtent.height
+        )
+    );
+
+    return actualExtent;
 }
 
 std::vector<char> readBinary(const std::string& fileName) {
