@@ -34,6 +34,9 @@ VulkanSampleApp::VulkanSampleApp() {
     createGraphicsPipeline();
     createFramebuffers();
     createVertexBuffer();
+    createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
     createCommandPool();
     createCommandBuffers();
     createSyncObjects();
@@ -529,7 +532,7 @@ void VulkanSampleApp::createGraphicsPipeline() {
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling = {};
@@ -708,6 +711,51 @@ void VulkanSampleApp::updateUniformBuffer(uint32_t currentFrame) {
     vkUnmapMemory(device, uniformBuffersMemory[currentFrame]);
 }
 
+void VulkanSampleApp::createDescriptorPool() {
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = static_cast<uint32_t>(swapchainImages.size());
+
+    VkDescriptorPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = &poolSize;
+    poolInfo.maxSets = static_cast<uint32_t>(swapchainImages.size());
+
+    handleVkResult(vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool), "Failed to create descriptor pool!");
+}
+
+void VulkanSampleApp::createDescriptorSets() {
+    descriptorSets.resize(swapchainImages.size());
+
+    std::vector<VkDescriptorSetLayout> layouts(swapchainImages.size(), descriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(swapchainImages.size());
+    allocInfo.pSetLayouts = layouts.data();
+
+    handleVkResult(vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()), "Failed to allocate descriptor sets!");
+
+    for(size_t i=0; i<swapchainImages.size(); i++) {
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.buffer = uniformBuffers[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
+
+        VkWriteDescriptorSet descriptorWrite = {};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = descriptorSets[i];
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    }
+}
+
 void VulkanSampleApp::createCommandPool() {
     auto queueFamilyIndices = findQueueFamilyIndices(physicalDevice);
 
@@ -770,6 +818,7 @@ void VulkanSampleApp::cleanupSwapchain() {
         vkDestroyBuffer(device, uniformBuffers[i], nullptr);
         vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
     }
+    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 
     vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
@@ -793,6 +842,8 @@ void VulkanSampleApp::recreateSwapchain() {
     createGraphicsPipeline();
     createFramebuffers();
     createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
     createCommandBuffers();
 }
 

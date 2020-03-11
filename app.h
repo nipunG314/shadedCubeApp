@@ -85,6 +85,8 @@ class VulkanSampleApp {
         void createVertexBuffer();
         void createUniformBuffers();
         void updateUniformBuffer(uint32_t currentFrame);
+        void createDescriptorPool();
+        void createDescriptorSets();
         void createCommandPool();
         void createCommandBuffers();
         void cleanupSwapchain();
@@ -119,6 +121,9 @@ class VulkanSampleApp {
         VkDeviceMemory vertexBufferMemory;
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+        VkDescriptorPool descriptorPool;
+        std::vector<VkDescriptorSet> descriptorSets;
 
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
