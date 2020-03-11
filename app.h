@@ -83,6 +83,7 @@ class VulkanSampleApp {
         void createGraphicsPipeline();
         void createFramebuffers();
         void createVertexBuffer();
+        void createUniformBuffers();
         void createCommandPool();
         void createCommandBuffers();
         void cleanupSwapchain();
@@ -115,6 +116,8 @@ class VulkanSampleApp {
 
         VkBuffer vertexBuffer;
         VkDeviceMemory vertexBufferMemory;
+        std::vector<VkBuffer> uniformBuffers;
+        std::vector<VkDeviceMemory> uniformBuffersMemory;
 
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;

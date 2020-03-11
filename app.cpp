@@ -643,6 +643,36 @@ void VulkanSampleApp::createVertexBuffer() {
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
+void VulkanSampleApp::createUniformBuffers() {
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    uniformBuffers.resize(swapchainImages.size());
+    uniformBuffersMemory.resize(swapchainImages.size());
+
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    VkMemoryRequirements memRequirements;
+
+    for(size_t i=0; i< swapchainImages.size(); i++) {
+        bufferInfo.size = bufferSize;
+        bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+        handleVkResult(vkCreateBuffer(device, &bufferInfo, nullptr, &uniformBuffers[i]), "Failed to create Uniform Buffer");
+
+        vkGetBufferMemoryRequirements(device, uniformBuffers[i], &memRequirements);
+
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        handleVkResult(vkAllocateMemory(device, &allocInfo, nullptr, &uniformBuffersMemory[i]), "Failed to allocate Uniform buffer memory!");
+
+        vkBindBufferMemory(device, uniformBuffers[i], uniformBuffersMemory[i], 0);
+    }
+}
+
 void VulkanSampleApp::createCommandPool() {
     auto queueFamilyIndices = findQueueFamilyIndices(physicalDevice);
 
@@ -701,6 +731,11 @@ void VulkanSampleApp::cleanupSwapchain() {
     for(auto framebuffer : swapchainFramebuffers)
         vkDestroyFramebuffer(device, framebuffer, nullptr);
 
+    for(size_t i=0; i<swapchainImages.size(); i++) {
+        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+    }
+
     vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
@@ -722,6 +757,7 @@ void VulkanSampleApp::recreateSwapchain() {
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
+    createUniformBuffers();
     createCommandBuffers();
 }
 
