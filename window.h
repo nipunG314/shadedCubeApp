@@ -8,13 +8,14 @@
 
 class Window {
     public:
-        Window(int width, int height, std::string title) : width(width), height(height), title(title) {
+        Window(void *app, int width, int height, std::string title, GLFWframebuffersizefun framebufferResizedCallback) : width(width), height(height), title(title) {
             glfwInit();
 
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
             window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+            glfwSetWindowUserPointer(window, app);
+            glfwSetFramebufferSizeCallback(window, framebufferResizedCallback);
         }
 
         ~Window() {

@@ -77,6 +77,8 @@ class VulkanSampleApp {
         void createVertexBuffer();
         void createCommandPool();
         void createCommandBuffers();
+        void cleanupSwapchain();
+        void recreateSwapchain();
         void createSyncObjects();
 
         void drawFrame();
@@ -113,6 +115,7 @@ class VulkanSampleApp {
         std::vector<VkFence> inFlightFences;
         std::vector<VkFence> imagesInFlight;
         size_t currentFrame = 0;
+        bool framebufferResized = false;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

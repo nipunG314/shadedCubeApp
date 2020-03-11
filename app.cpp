@@ -7,7 +7,17 @@
 #include <set>
 
 VulkanSampleApp::VulkanSampleApp() {
-    window = new Window(WIDTH, HEIGHT, TITLE);
+    auto framebufferResizedCallback = [](GLFWwindow *window, int width, int height) {
+        auto app = reinterpret_cast<VulkanSampleApp *>(glfwGetWindowUserPointer(window));
+        app->framebufferResized = true;
+    };
+    window = new Window(
+        this,
+        WIDTH,
+        HEIGHT,
+        TITLE,
+        static_cast<GLFWframebuffersizefun>(framebufferResizedCallback)
+    );
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -25,6 +35,8 @@ VulkanSampleApp::VulkanSampleApp() {
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
+    cleanupSwapchain();
+
     for(int i=0; i<MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
         vkDestroySemaphore(device, renderCompleteSemaphores[i], nullptr);
@@ -33,14 +45,6 @@ VulkanSampleApp::~VulkanSampleApp() {
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
-    for(auto framebuffer: swapchainFramebuffers)
-        vkDestroyFramebuffer(device, framebuffer, nullptr);
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyRenderPass(device, renderPass, nullptr);
-    for(auto imageView: swapchainImageViews)
-        vkDestroyImageView(device, imageView, nullptr);
-    vkDestroySwapchainKHR(device, swapchain, nullptr);
     vkDestroyDevice(device, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     if (enableValidationLayers)
@@ -673,6 +677,35 @@ void VulkanSampleApp::createCommandBuffers() {
     }
 }
 
+
+void VulkanSampleApp::cleanupSwapchain() {
+    for(auto framebuffer : swapchainFramebuffers)
+        vkDestroyFramebuffer(device, framebuffer, nullptr);
+
+    vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(device, renderPass, nullptr);
+
+    for(auto imageView : swapchainImageViews)
+        vkDestroyImageView(device, imageView, nullptr);
+
+    vkDestroySwapchainKHR(device, swapchain, nullptr);
+}
+
+void VulkanSampleApp::recreateSwapchain() {
+    vkDeviceWaitIdle(device);
+
+    cleanupSwapchain();
+
+    createSwapchain();
+    createImageViews();
+    createRenderPass();
+    createGraphicsPipeline();
+    createFramebuffers();
+    createCommandBuffers();
+}
+
 void VulkanSampleApp::createSyncObjects() {
    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
    renderCompleteSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -694,10 +727,15 @@ void VulkanSampleApp::createSyncObjects() {
 
 void VulkanSampleApp::drawFrame() {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-    vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapchain();
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        throw std::runtime_error("Failed to acquire Swapchain image!");
 
     if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -719,6 +757,7 @@ void VulkanSampleApp::drawFrame() {
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
+    vkResetFences(device, 1, &inFlightFences[currentFrame]);
     handleVkResult(vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]), "Failed to submit draw command buffer!");
 
     VkPresentInfoKHR presentInfo = {};
@@ -731,7 +770,12 @@ void VulkanSampleApp::drawFrame() {
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
 
-    vkQueuePresentKHR(presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+        framebufferResized = false;
+        recreateSwapchain();
+    } else if (result != VK_SUCCESS)
+        throw std::runtime_error("Failed to present Swapchain image!");
 
     currentFrame = (currentFrame+1) % MAX_FRAMES_IN_FLIGHT;
 }
