@@ -77,6 +77,9 @@ class VulkanSampleApp {
         void createVertexBuffer();
         void createCommandPool();
         void createCommandBuffers();
+        void createSyncObjects();
+
+        void drawFrame();
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -104,6 +107,12 @@ class VulkanSampleApp {
 
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;
+
+        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore> renderCompleteSemaphores;
+        std::vector<VkFence> inFlightFences;
+        std::vector<VkFence> imagesInFlight;
+        size_t currentFrame = 0;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

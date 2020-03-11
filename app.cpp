@@ -21,9 +21,15 @@ VulkanSampleApp::VulkanSampleApp() {
     createVertexBuffer();
     createCommandPool();
     createCommandBuffers();
+    createSyncObjects();
 }
 
 VulkanSampleApp::~VulkanSampleApp() {
+    for(int i=0; i<MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+        vkDestroySemaphore(device, renderCompleteSemaphores[i], nullptr);
+        vkDestroyFence(device, inFlightFences[i], nullptr);
+    }
     vkDestroyCommandPool(device, commandPool, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
@@ -45,7 +51,10 @@ VulkanSampleApp::~VulkanSampleApp() {
 void VulkanSampleApp::run() {
     while(!window->shouldClose()) {
         window->pollEvents();
+        drawFrame();
     }
+
+    vkDeviceWaitIdle(device);
 }
 
 std::vector<const char *> VulkanSampleApp::getRequiredExtensions() {
@@ -685,5 +694,68 @@ void VulkanSampleApp::createCommandBuffers() {
 
         handleVkResult(vkEndCommandBuffer(commandBuffers[i]), "Failed to record command buffer!");
     }
+}
+
+void VulkanSampleApp::createSyncObjects() {
+   imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+   renderCompleteSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+   inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+   imagesInFlight.resize(swapchainImages.size(), VK_NULL_HANDLE);
+
+   VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+   semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+   VkFenceCreateInfo fenceCreateInfo = {};
+   fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+   fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+   for(int i=0; i<MAX_FRAMES_IN_FLIGHT; i++) {
+       handleVkResult(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]), "Failed to create imageAvailableSemaphore!");
+       handleVkResult(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderCompleteSemaphores[i]), "Failed to create renderCompleteSemaphores!");
+       handleVkResult(vkCreateFence(device, &fenceCreateInfo, nullptr, &inFlightFences[i]), "Failed to create fence!");
+   }
+}
+
+void VulkanSampleApp::drawFrame() {
+    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkResetFences(device, 1, &inFlightFences[currentFrame]);
+
+    uint32_t imageIndex;
+    vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+        vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+
+    imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+
+    VkSemaphore signalSemaphores[] = {renderCompleteSemaphores[currentFrame]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    handleVkResult(vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]), "Failed to submit draw command buffer!");
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {swapchain};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+
+    vkQueuePresentKHR(presentQueue, &presentInfo);
+
+    currentFrame = (currentFrame+1) % MAX_FRAMES_IN_FLIGHT;
 }
 
