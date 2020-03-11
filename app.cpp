@@ -34,6 +34,7 @@ VulkanSampleApp::VulkanSampleApp() {
     createGraphicsPipeline();
     createFramebuffers();
     createVertexBuffer();
+    createIndexBuffer();
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
@@ -52,6 +53,8 @@ VulkanSampleApp::~VulkanSampleApp() {
         vkDestroyFence(device, inFlightFences[i], nullptr);
     }
     vkDestroyCommandPool(device, commandPool, nullptr);
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
     vkDestroyDevice(device, nullptr);
@@ -634,6 +637,25 @@ void VulkanSampleApp::createVertexBuffer() {
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
+void VulkanSampleApp::createIndexBuffer() {
+    // Creating and Allocating the Index Buffer
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    createBuffer(
+        physicalDevice,
+        device,
+        bufferSize,
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        indexBuffer,
+        indexBufferMemory
+    );
+    // Filling the Index Buffer
+    void *data;
+    vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), (size_t) bufferSize);
+    vkUnmapMemory(device, indexBufferMemory);
+}
+
 void VulkanSampleApp::createUniformBuffers() {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
@@ -782,8 +804,9 @@ void VulkanSampleApp::createCommandBuffers() {
         VkBuffer vertexBuffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
-        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
 
         handleVkResult(vkEndCommandBuffer(commandBuffers[i]), "Failed to record command buffer!");

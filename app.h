@@ -83,6 +83,7 @@ class VulkanSampleApp {
         void createGraphicsPipeline();
         void createFramebuffers();
         void createVertexBuffer();
+        void createIndexBuffer();
         void createUniformBuffers();
         void updateUniformBuffer(uint32_t currentFrame);
         void createDescriptorPool();
@@ -119,6 +120,8 @@ class VulkanSampleApp {
 
         VkBuffer vertexBuffer;
         VkDeviceMemory vertexBufferMemory;
+        VkBuffer indexBuffer;
+        VkDeviceMemory indexBufferMemory;
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
 

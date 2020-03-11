@@ -26,9 +26,16 @@ const bool enableValidationLayers = true;
 
 // Vertex Input data
 const std::vector<Vertex> vertices = {
-    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}},
-    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{-0.5f, 0.5f},  {0.0f, 1.0f, 0.0f}},
+    {{0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}},
+    {{0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
+// Index Buffer data
+const std::vector<uint16_t> indices = {
+    3, 1, 0,
+    0, 2, 3
 };
 
 const int MAX_FRAMES_IN_FLIGHT = 10;
