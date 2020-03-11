@@ -616,37 +616,21 @@ void VulkanSampleApp::createFramebuffers() {
 }
 
 void VulkanSampleApp::createVertexBuffer() {
-    // Creating the Vertex Buffer
-    VkBufferCreateInfo bufferInfo = {};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    handleVkResult(vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer), "Failed to create the Vertex Buffer!");
-
-    // Allocating memory for the Vertex Buffer
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(
-            physicalDevice,
-            memRequirements.memoryTypeBits,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    // Creating and Allocating the Vertex Buffer
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    createBuffer(
+        physicalDevice,
+        device,
+        bufferSize,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        vertexBuffer,
+        vertexBufferMemory
     );
-
-    handleVkResult(vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory), "Failed to allocate Vertex Buffer memory");
-
-    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
-
     // Filling the Vertex Buffer
     void *data;
-    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+    vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferSize);
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
@@ -664,19 +648,15 @@ void VulkanSampleApp::createUniformBuffers() {
     VkMemoryRequirements memRequirements;
 
     for(size_t i=0; i< swapchainImages.size(); i++) {
-        bufferInfo.size = bufferSize;
-        bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-
-        handleVkResult(vkCreateBuffer(device, &bufferInfo, nullptr, &uniformBuffers[i]), "Failed to create Uniform Buffer");
-
-        vkGetBufferMemoryRequirements(device, uniformBuffers[i], &memRequirements);
-
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-        handleVkResult(vkAllocateMemory(device, &allocInfo, nullptr, &uniformBuffersMemory[i]), "Failed to allocate Uniform buffer memory!");
-
-        vkBindBufferMemory(device, uniformBuffers[i], uniformBuffersMemory[i], 0);
+        createBuffer(
+            physicalDevice,
+            device,
+            bufferSize,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            uniformBuffers[i],
+            uniformBuffersMemory[i]
+        );
     }
 }
 
