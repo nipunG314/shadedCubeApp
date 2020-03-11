@@ -5,6 +5,7 @@
 #include "window.h"
 
 #include <array>
+#include <glm/detail/type_mat.hpp>
 #include <iostream>
 #include <optional>
 #include <stdexcept>
@@ -58,6 +59,12 @@ struct Vertex {
     }
 };
 
+struct UniformBufferObject {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 class VulkanSampleApp {
     public:
         VulkanSampleApp();
@@ -72,6 +79,7 @@ class VulkanSampleApp {
         void createSwapchain();
         void createImageViews();
         void createRenderPass();
+        void createDescriptorSetLayout();
         void createGraphicsPipeline();
         void createFramebuffers();
         void createVertexBuffer();
@@ -101,6 +109,7 @@ class VulkanSampleApp {
         std::vector<VkFramebuffer> swapchainFramebuffers;
 
         VkRenderPass renderPass;
+        VkDescriptorSetLayout descriptorSetLayout;
         VkPipelineLayout pipelineLayout;
         VkPipeline graphicsPipeline;
 

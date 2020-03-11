@@ -26,6 +26,7 @@ VulkanSampleApp::VulkanSampleApp() {
     createSwapchain();
     createImageViews();
     createRenderPass();
+    createDescriptorSetLayout();
     createGraphicsPipeline();
     createFramebuffers();
     createVertexBuffer();
@@ -37,6 +38,7 @@ VulkanSampleApp::VulkanSampleApp() {
 VulkanSampleApp::~VulkanSampleApp() {
     cleanupSwapchain();
 
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
     for(int i=0; i<MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
         vkDestroySemaphore(device, renderCompleteSemaphores[i], nullptr);
@@ -437,6 +439,21 @@ void VulkanSampleApp::createRenderPass() {
     handleVkResult(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass), "Failed to create Render Pass!");
 }
 
+void VulkanSampleApp::createDescriptorSetLayout() {
+    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorCount = 1;
+    uboLayoutBinding.stageFlags =  VK_SHADER_STAGE_VERTEX_BIT;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+
+    handleVkResult(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout), "Failed to create a Descriptor Set Layout!");
+}
+
 void VulkanSampleApp::createGraphicsPipeline() {
     auto vertShaderModule = createShaderModule(device, "shaders/vert.spv");
     auto fragShaderModule = createShaderModule(device, "shaders/frag.spv");
@@ -538,6 +555,8 @@ void VulkanSampleApp::createGraphicsPipeline() {
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
     handleVkResult(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout), "Failed to create pipeline layout!");
 
