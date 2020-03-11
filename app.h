@@ -84,6 +84,7 @@ class VulkanSampleApp {
         void createFramebuffers();
         void createVertexBuffer();
         void createUniformBuffers();
+        void updateUniformBuffer(uint32_t currentFrame);
         void createCommandPool();
         void createCommandBuffers();
         void cleanupSwapchain();
