@@ -5,6 +5,21 @@ tests/CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o: deps/glad_vulkan.c
 tests/CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o: deps/glad/vk_platform.h
 tests/CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o: deps/glad/vulkan.h
 
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vk_platform.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_android.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_core.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_fuchsia.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_ggp.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_ios.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_macos.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_metal.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_vi.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_wayland.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_win32.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_xcb.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_xlib.h
+tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: ../vulkan/include/vulkan/vulkan_xlib_xrandr.h
 tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: tests/triangle-vulkan.c
 tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: deps/glad/vk_platform.h
 tests/CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o: deps/glad/vulkan.h

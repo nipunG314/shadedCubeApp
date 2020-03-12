@@ -14,6 +14,23 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+enum ShaderProgram {
+    DIFFUSE_SHADER,
+    BRIGHT_SHADER,
+    END_OF_SHADERS
+};
+
+inline bool validateShaderName(ShaderProgram program, const char *shaderProgramName) {
+    switch (program) {
+        case ShaderProgram::DIFFUSE_SHADER:
+            return strcmp("diffuseShader", shaderProgramName) == 0;
+        case ShaderProgram::BRIGHT_SHADER:
+            return strcmp("brightShader", shaderProgramName) == 0;
+        default:
+            return strcmp("diffuseShader", shaderProgramName) == 0;
+    }
+}
+
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsQueue;
     std::optional<uint32_t> computeQueue;
@@ -81,7 +98,7 @@ struct UniformLightObject {
 
 class VulkanSampleApp {
     public:
-        VulkanSampleApp();
+        VulkanSampleApp(ShaderProgram program);
         ~VulkanSampleApp();
         void run();
     private:
@@ -113,6 +130,7 @@ class VulkanSampleApp {
 
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
+        ShaderProgram shaderProgram;
 
         Window *window;
         VkSurfaceKHR surface;

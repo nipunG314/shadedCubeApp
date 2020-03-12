@@ -5,6 +5,21 @@ examples/CMakeFiles/splitview.dir/__/deps/glad_gl.c.o: deps/glad_gl.c
 examples/CMakeFiles/splitview.dir/__/deps/glad_gl.c.o: deps/glad/gl.h
 examples/CMakeFiles/splitview.dir/__/deps/glad_gl.c.o: deps/glad/khrplatform.h
 
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vk_platform.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_android.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_core.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_fuchsia.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_ggp.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_ios.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_macos.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_metal.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_vi.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_wayland.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_win32.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_xcb.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_xlib.h
+examples/CMakeFiles/splitview.dir/splitview.c.o: ../vulkan/include/vulkan/vulkan_xlib_xrandr.h
 examples/CMakeFiles/splitview.dir/splitview.c.o: examples/splitview.c
 examples/CMakeFiles/splitview.dir/splitview.c.o: deps/glad/gl.h
 examples/CMakeFiles/splitview.dir/splitview.c.o: deps/glad/khrplatform.h

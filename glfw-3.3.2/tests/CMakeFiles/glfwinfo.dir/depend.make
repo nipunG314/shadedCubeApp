@@ -12,6 +12,21 @@ tests/CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o: deps/glad_vulkan.c
 tests/CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o: deps/glad/vk_platform.h
 tests/CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o: deps/glad/vulkan.h
 
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vk_platform.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_android.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_core.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_fuchsia.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_ggp.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_ios.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_macos.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_metal.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_vi.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_wayland.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_win32.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_xcb.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_xlib.h
+tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: ../vulkan/include/vulkan/vulkan_xlib_xrandr.h
 tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: tests/glfwinfo.c
 tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: deps/getopt.h
 tests/CMakeFiles/glfwinfo.dir/glfwinfo.c.o: deps/glad/gl.h

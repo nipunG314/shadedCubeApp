@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-VulkanSampleApp::VulkanSampleApp() {
+VulkanSampleApp::VulkanSampleApp(ShaderProgram program) : shaderProgram(program) {
     auto framebufferResizedCallback = [](GLFWwindow *window, int width, int height) {
         auto app = reinterpret_cast<VulkanSampleApp *>(glfwGetWindowUserPointer(window));
         app->framebufferResized = true;
@@ -484,7 +484,11 @@ void VulkanSampleApp::createDescriptorSetLayouts() {
 
 void VulkanSampleApp::createGraphicsPipeline() {
     auto vertShaderModule = createShaderModule(device, "shaders/vert.spv");
-    auto fragShaderModule = createShaderModule(device, "shaders/bright.spv");
+    auto fragShaderModule = createShaderModule(device, "shaders/frag.spv");
+    if (shaderProgram == ShaderProgram::BRIGHT_SHADER) {
+        vkDestroyShaderModule(device, fragShaderModule, nullptr);
+        fragShaderModule = createShaderModule(device, "shaders/bright.spv");
+    }
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

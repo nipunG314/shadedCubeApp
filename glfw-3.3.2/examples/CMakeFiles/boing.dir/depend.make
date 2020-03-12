@@ -5,6 +5,21 @@ examples/CMakeFiles/boing.dir/__/deps/glad_gl.c.o: deps/glad_gl.c
 examples/CMakeFiles/boing.dir/__/deps/glad_gl.c.o: deps/glad/gl.h
 examples/CMakeFiles/boing.dir/__/deps/glad_gl.c.o: deps/glad/khrplatform.h
 
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vk_platform.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_android.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_core.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_fuchsia.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_ggp.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_ios.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_macos.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_metal.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_vi.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_wayland.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_win32.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_xcb.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_xlib.h
+examples/CMakeFiles/boing.dir/boing.c.o: ../vulkan/include/vulkan/vulkan_xlib_xrandr.h
 examples/CMakeFiles/boing.dir/boing.c.o: examples/boing.c
 examples/CMakeFiles/boing.dir/boing.c.o: deps/glad/gl.h
 examples/CMakeFiles/boing.dir/boing.c.o: deps/glad/khrplatform.h

@@ -5,6 +5,21 @@ examples/CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o: deps/glad_gl.c
 examples/CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o: deps/glad/gl.h
 examples/CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o: deps/glad/khrplatform.h
 
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vk_platform.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_android.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_core.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_fuchsia.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_ggp.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_ios.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_macos.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_metal.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_vi.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_wayland.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_win32.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_xcb.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_xlib.h
+examples/CMakeFiles/heightmap.dir/heightmap.c.o: ../vulkan/include/vulkan/vulkan_xlib_xrandr.h
 examples/CMakeFiles/heightmap.dir/heightmap.c.o: examples/heightmap.c
 examples/CMakeFiles/heightmap.dir/heightmap.c.o: deps/glad/gl.h
 examples/CMakeFiles/heightmap.dir/heightmap.c.o: deps/glad/khrplatform.h

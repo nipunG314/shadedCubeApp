@@ -8,6 +8,21 @@ tests/CMakeFiles/iconify.dir/__/deps/glad_gl.c.o: deps/glad_gl.c
 tests/CMakeFiles/iconify.dir/__/deps/glad_gl.c.o: deps/glad/gl.h
 tests/CMakeFiles/iconify.dir/__/deps/glad_gl.c.o: deps/glad/khrplatform.h
 
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vk_platform.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_android.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_core.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_fuchsia.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_ggp.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_ios.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_macos.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_metal.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_vi.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_wayland.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_win32.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_xcb.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_xlib.h
+tests/CMakeFiles/iconify.dir/iconify.c.o: ../vulkan/include/vulkan/vulkan_xlib_xrandr.h
 tests/CMakeFiles/iconify.dir/iconify.c.o: tests/iconify.c
 tests/CMakeFiles/iconify.dir/iconify.c.o: deps/getopt.h
 tests/CMakeFiles/iconify.dir/iconify.c.o: deps/glad/gl.h
