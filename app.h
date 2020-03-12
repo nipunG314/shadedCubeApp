@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <glm/glm.hpp>
+#include <vector>
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsQueue;
@@ -65,10 +66,15 @@ struct Vertex {
     }
 };
 
-struct UniformBufferObject {
+struct UniformTransformObject {
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
+};
+
+struct UniformLightObject {
+    glm::vec3 lightDir;
+    glm::vec3 lightColor;
 };
 
 class VulkanSampleApp {
@@ -85,13 +91,14 @@ class VulkanSampleApp {
         void createSwapchain();
         void createImageViews();
         void createRenderPass();
-        void createDescriptorSetLayout();
+        void createDescriptorSetLayouts();
         void createGraphicsPipeline();
         void createFramebuffers();
         void createVertexBuffer();
         void createIndexBuffer();
-        void createUniformBuffers();
-        void updateUniformBuffer(uint32_t currentFrame);
+        void createUniformTransforms();
+        void createUniformLights();
+        void updateUniforms(uint32_t currentFrame);
         void createDescriptorPool();
         void createDescriptorSets();
         void createCommandPool();
@@ -120,7 +127,7 @@ class VulkanSampleApp {
         std::vector<VkFramebuffer> swapchainFramebuffers;
 
         VkRenderPass renderPass;
-        VkDescriptorSetLayout descriptorSetLayout;
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
         VkPipelineLayout pipelineLayout;
         VkPipeline graphicsPipeline;
 
@@ -128,11 +135,13 @@ class VulkanSampleApp {
         VkDeviceMemory vertexBufferMemory;
         VkBuffer indexBuffer;
         VkDeviceMemory indexBufferMemory;
-        std::vector<VkBuffer> uniformBuffers;
-        std::vector<VkDeviceMemory> uniformBuffersMemory;
+        std::vector<VkBuffer> uniformTransforms;
+        std::vector<VkDeviceMemory> uniformTransformsMemory;
+        std::vector<VkBuffer> uniformLights;
+        std::vector<VkDeviceMemory> uniformLightsMemory;
 
         VkDescriptorPool descriptorPool;
-        std::vector<VkDescriptorSet> descriptorSets;
+        std::vector<std::vector<VkDescriptorSet>> descriptorSets;
 
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers;

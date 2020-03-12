@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <glm/detail/type_vec.hpp>
 #include <set>
 
 #define GLM_FORCE_RADIANS
@@ -30,12 +31,13 @@ VulkanSampleApp::VulkanSampleApp() {
     createSwapchain();
     createImageViews();
     createRenderPass();
-    createDescriptorSetLayout();
+    createDescriptorSetLayouts();
     createGraphicsPipeline();
     createFramebuffers();
     createVertexBuffer();
     createIndexBuffer();
-    createUniformBuffers();
+    createUniformTransforms();
+    createUniformLights();
     createDescriptorPool();
     createDescriptorSets();
     createCommandPool();
@@ -46,7 +48,8 @@ VulkanSampleApp::VulkanSampleApp() {
 VulkanSampleApp::~VulkanSampleApp() {
     cleanupSwapchain();
 
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayouts[0], nullptr);
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayouts[1], nullptr);
     for(int i=0; i<MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
         vkDestroySemaphore(device, renderCompleteSemaphores[i], nullptr);
@@ -449,7 +452,9 @@ void VulkanSampleApp::createRenderPass() {
     handleVkResult(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass), "Failed to create Render Pass!");
 }
 
-void VulkanSampleApp::createDescriptorSetLayout() {
+void VulkanSampleApp::createDescriptorSetLayouts() {
+    descriptorSetLayouts.resize(2);
+
     VkDescriptorSetLayoutBinding uboLayoutBinding = {};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -461,7 +466,20 @@ void VulkanSampleApp::createDescriptorSetLayout() {
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &uboLayoutBinding;
 
-    handleVkResult(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout), "Failed to create a Descriptor Set Layout!");
+    handleVkResult(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[0]), "Failed to create a Descriptor Set Layout!");
+
+    VkDescriptorSetLayoutBinding loLayoutBinding = {};
+    loLayoutBinding.binding = 0;
+    loLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    loLayoutBinding.descriptorCount = 1;
+    loLayoutBinding.stageFlags =  VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &loLayoutBinding;
+
+    handleVkResult(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[1]), "Failed to create a Descriptor Set Layout!");
 }
 
 void VulkanSampleApp::createGraphicsPipeline() {
@@ -565,8 +583,8 @@ void VulkanSampleApp::createGraphicsPipeline() {
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.setLayoutCount = 2;
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
     handleVkResult(vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout), "Failed to create pipeline layout!");
 
@@ -656,11 +674,11 @@ void VulkanSampleApp::createIndexBuffer() {
     vkUnmapMemory(device, indexBufferMemory);
 }
 
-void VulkanSampleApp::createUniformBuffers() {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+void VulkanSampleApp::createUniformTransforms() {
+    VkDeviceSize bufferSize = sizeof(UniformTransformObject);
 
-    uniformBuffers.resize(swapchainImages.size());
-    uniformBuffersMemory.resize(swapchainImages.size());
+    uniformTransforms.resize(swapchainImages.size());
+    uniformTransformsMemory.resize(swapchainImages.size());
 
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -676,19 +694,45 @@ void VulkanSampleApp::createUniformBuffers() {
             bufferSize,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            uniformBuffers[i],
-            uniformBuffersMemory[i]
+            uniformTransforms[i],
+            uniformTransformsMemory[i]
         );
     }
 }
 
-void VulkanSampleApp::updateUniformBuffer(uint32_t currentFrame) {
+void VulkanSampleApp::createUniformLights() {
+    VkDeviceSize bufferSize = sizeof(UniformLightObject);
+
+    uniformLights.resize(swapchainImages.size());
+    uniformLightsMemory.resize(swapchainImages.size());
+
+    VkBufferCreateInfo bufferInfo = {};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    VkMemoryRequirements memRequirements;
+
+    for(size_t i=0; i< swapchainImages.size(); i++) {
+        createBuffer(
+            physicalDevice,
+            device,
+            bufferSize,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            uniformLights[i],
+            uniformLightsMemory[i]
+        );
+    }
+}
+
+void VulkanSampleApp::updateUniforms(uint32_t currentFrame) {
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-    UniformBufferObject ubo = {};
+    UniformTransformObject ubo = {};
     ubo.model = glm::rotate(
         glm::mat4(1.0f),
         time * glm::radians(90.f),
@@ -707,47 +751,58 @@ void VulkanSampleApp::updateUniformBuffer(uint32_t currentFrame) {
     );
     ubo.proj[1][1] *= -1;
 
+    UniformLightObject lo = {};
+    lo.lightDir = glm::vec3(1.0f);
+    lo.lightColor = glm::vec3(1.0f);
+
     void *data;
-    vkMapMemory(device, uniformBuffersMemory[currentFrame], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(device, uniformTransformsMemory[currentFrame], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(device, uniformBuffersMemory[currentFrame]);
+    vkUnmapMemory(device, uniformTransformsMemory[currentFrame]);
+    vkMapMemory(device, uniformLightsMemory[currentFrame], 0, sizeof(lo), 0, &data);
+    memcpy(data, &lo, sizeof(lo));
+    vkUnmapMemory(device, uniformLightsMemory[currentFrame]);
 }
 
 void VulkanSampleApp::createDescriptorPool() {
     VkDescriptorPoolSize poolSize = {};
     poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = static_cast<uint32_t>(swapchainImages.size());
+    poolSize.descriptorCount = static_cast<uint32_t>(swapchainImages.size() * 2);
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 1;
     poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = static_cast<uint32_t>(swapchainImages.size());
+    poolInfo.maxSets = static_cast<uint32_t>(swapchainImages.size() * 2);
 
     handleVkResult(vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool), "Failed to create descriptor pool!");
 }
 
 void VulkanSampleApp::createDescriptorSets() {
-    descriptorSets.resize(swapchainImages.size());
+    descriptorSetLayouts.resize(swapchainImages.size());
 
-    std::vector<VkDescriptorSetLayout> layouts(swapchainImages.size(), descriptorSetLayout);
+    std::vector<VkDescriptorSetLayout> vertexLayouts(swapchainImages.size(), descriptorSetLayouts[0]);
+    std::vector<VkDescriptorSetLayout> fragmentLayouts(swapchainImages.size(), descriptorSetLayouts[1]);
+    std::vector<VkDescriptorSet> transformDescriptorSets(swapchainImages.size());
+    std::vector<VkDescriptorSet> lightDescriptorSets(swapchainImages.size());
+
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(swapchainImages.size());
-    allocInfo.pSetLayouts = layouts.data();
+    allocInfo.pSetLayouts = vertexLayouts.data();
 
-    handleVkResult(vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()), "Failed to allocate descriptor sets!");
+    handleVkResult(vkAllocateDescriptorSets(device, &allocInfo, transformDescriptorSets.data()), "Failed to allocate descriptor sets!");
 
     for(size_t i=0; i<swapchainImages.size(); i++) {
         VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.buffer = uniformBuffers[i];
+        bufferInfo.buffer = uniformTransforms[i];
         bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+        bufferInfo.range = sizeof(UniformTransformObject);
 
         VkWriteDescriptorSet descriptorWrite = {};
         descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = descriptorSets[i];
+        descriptorWrite.dstSet = transformDescriptorSets[i];
         descriptorWrite.dstBinding = 0;
         descriptorWrite.dstArrayElement = 0;
         descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -755,6 +810,32 @@ void VulkanSampleApp::createDescriptorSets() {
         descriptorWrite.pBufferInfo = &bufferInfo;
 
         vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    }
+
+    allocInfo.pSetLayouts = fragmentLayouts.data();
+
+    handleVkResult(vkAllocateDescriptorSets(device, &allocInfo, lightDescriptorSets.data()), "Failed to allocate descriptor sets!");
+
+    for(size_t i=0; i<swapchainImages.size(); i++) {
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.buffer = uniformLights[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformLightObject);
+
+        VkWriteDescriptorSet descriptorWrite = {};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = lightDescriptorSets[i];
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    }
+
+    for(size_t i=0; i<swapchainImages.size(); i++) {
+        descriptorSets.push_back({transformDescriptorSets[i], lightDescriptorSets[i]});
     }
 }
 
@@ -805,7 +886,7 @@ void VulkanSampleApp::createCommandBuffers() {
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 2, descriptorSets[i].data(), 0, nullptr);
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -819,8 +900,10 @@ void VulkanSampleApp::cleanupSwapchain() {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
 
     for(size_t i=0; i<swapchainImages.size(); i++) {
-        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+        vkDestroyBuffer(device, uniformLights[i], nullptr);
+        vkFreeMemory(device, uniformLightsMemory[i], nullptr);
+        vkDestroyBuffer(device, uniformTransforms[i], nullptr);
+        vkFreeMemory(device, uniformTransformsMemory[i], nullptr);
     }
     vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 
@@ -845,7 +928,7 @@ void VulkanSampleApp::recreateSwapchain() {
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
-    createUniformBuffers();
+    createUniformTransforms();
     createDescriptorPool();
     createDescriptorSets();
     createCommandBuffers();
@@ -887,7 +970,7 @@ void VulkanSampleApp::drawFrame() {
 
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
-    updateUniformBuffer(imageIndex);
+    updateUniforms(imageIndex);
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
