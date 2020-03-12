@@ -73,7 +73,9 @@ struct UniformTransformObject {
 };
 
 struct UniformLightObject {
-    glm::vec3 lightDir;
+    glm::vec3 lightDirX;
+    glm::vec3 lightDirY;
+    glm::vec3 lightDirZ;
     glm::vec3 lightColor;
 };
 

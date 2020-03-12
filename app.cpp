@@ -484,7 +484,7 @@ void VulkanSampleApp::createDescriptorSetLayouts() {
 
 void VulkanSampleApp::createGraphicsPipeline() {
     auto vertShaderModule = createShaderModule(device, "shaders/vert.spv");
-    auto fragShaderModule = createShaderModule(device, "shaders/frag.spv");
+    auto fragShaderModule = createShaderModule(device, "shaders/bright.spv");
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -752,8 +752,10 @@ void VulkanSampleApp::updateUniforms(uint32_t currentFrame) {
     ubo.proj[1][1] *= -1;
 
     UniformLightObject lo = {};
-    lo.lightDir = glm::vec3(1.0f);
-    lo.lightColor = glm::vec3(1.0f);
+    lo.lightDirX = glm::vec3(-1.0f, -1.0f, -1.0f);
+    lo.lightDirY = glm::vec3(1.0f, 1.0f, 1.0f);
+    lo.lightDirZ = glm::vec3(0.5f, 0.0f, 0.5f);
+    lo.lightColor = glm::vec3(0.01f);
 
     void *data;
     vkMapMemory(device, uniformTransformsMemory[currentFrame], 0, sizeof(ubo), 0, &data);
