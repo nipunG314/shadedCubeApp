@@ -2,7 +2,7 @@
 .clangd
 compile_commands.json
 deps.txt
-VulkanSampleApp
+ShadedCubeApp
 *.swp
 CMakeDoxyfile.in
 CMakeDoxygenDefaults.cmake

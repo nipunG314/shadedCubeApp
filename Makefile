@@ -6,16 +6,16 @@ SOURCES = main.cpp app.cpp
 export LD_LIBRARY_PATH="$(VULKAN_SDK_PATH)"/lib
 export VK_LAYER_PATH="$(VULKAN_SDK_PATH)"/etc/vulkan/explicit_layer.d
 
-VulkanSampleApp: main.cpp
+ShadedCubeApp: main.cpp
 	@echo "$(LD_LIBRARY_PATH)"
 	@echo "$(VK_LAYER_PATH)"
-	g++ $(CFLAGS) -g -o VulkanSampleApp $(SOURCES) $(LDFLAGS)
+	g++ $(CFLAGS) -g -o ShadedCubeApp $(SOURCES) $(LDFLAGS)
 
 .PHONY: test clean
 
-test: VulkanSampleApp
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) VK_LAYER_PATH=$(VK_LAYER_PATH) ./VulkanSampleApp $(shader)
+test: ShadedCubeApp
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) VK_LAYER_PATH=$(VK_LAYER_PATH) ./ShadedCubeApp $(shader)
 
 clean:
-	rm -r VulkanSampleApp
+	rm -r ShadedCubeApp
 
