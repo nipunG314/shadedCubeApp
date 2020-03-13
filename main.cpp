@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     }
 
     try {
-        VulkanSampleApp app(shaderProgram);
+        ShadedCubeApp app(shaderProgram);
         app.run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;

@@ -96,10 +96,10 @@ struct UniformLightObject {
     glm::vec3 lightColor;
 };
 
-class VulkanSampleApp {
+class ShadedCubeApp {
     public:
-        VulkanSampleApp(ShaderProgram program);
-        ~VulkanSampleApp();
+        ShadedCubeApp(ShaderProgram program);
+        ~ShadedCubeApp();
         void run();
     private:
         void createInstance();

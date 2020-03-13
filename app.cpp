@@ -13,9 +13,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-VulkanSampleApp::VulkanSampleApp(ShaderProgram program) : shaderProgram(program) {
+ShadedCubeApp::ShadedCubeApp(ShaderProgram program) : shaderProgram(program) {
     auto framebufferResizedCallback = [](GLFWwindow *window, int width, int height) {
-        auto app = reinterpret_cast<VulkanSampleApp *>(glfwGetWindowUserPointer(window));
+        auto app = reinterpret_cast<ShadedCubeApp *>(glfwGetWindowUserPointer(window));
         app->framebufferResized = true;
     };
     window = new Window(
@@ -47,7 +47,7 @@ VulkanSampleApp::VulkanSampleApp(ShaderProgram program) : shaderProgram(program)
     createSyncObjects();
 }
 
-VulkanSampleApp::~VulkanSampleApp() {
+ShadedCubeApp::~ShadedCubeApp() {
     cleanupSwapchain();
 
     vkDestroyDescriptorSetLayout(device, descriptorSetLayouts[0], nullptr);
@@ -69,7 +69,7 @@ VulkanSampleApp::~VulkanSampleApp() {
     vkDestroyInstance(instance, nullptr);
 }
 
-void VulkanSampleApp::run() {
+void ShadedCubeApp::run() {
     while(!window->shouldClose()) {
         window->pollEvents();
         drawFrame();
@@ -78,7 +78,7 @@ void VulkanSampleApp::run() {
     vkDeviceWaitIdle(device);
 }
 
-std::vector<const char *> VulkanSampleApp::getRequiredExtensions() {
+std::vector<const char *> ShadedCubeApp::getRequiredExtensions() {
     auto extensions = window->getRequiredExtensions();
 
     if (enableValidationLayers) {
@@ -91,7 +91,7 @@ std::vector<const char *> VulkanSampleApp::getRequiredExtensions() {
     return extensions;
 }
 
-bool VulkanSampleApp::checkValidationLayerSupport() {
+bool ShadedCubeApp::checkValidationLayerSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -124,13 +124,13 @@ bool VulkanSampleApp::checkValidationLayerSupport() {
     return true;
 }
 
-void VulkanSampleApp::createInstance() {
+void ShadedCubeApp::createInstance() {
     if (enableValidationLayers && !checkValidationLayerSupport())
         throw std::runtime_error("Validation layers requested but not availble!");
 
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "VulkanSampleApp";
+    appInfo.pApplicationName = "ShadedCubeApp";
     appInfo.applicationVersion = 1;
     appInfo.pEngineName = "";
     appInfo.engineVersion = 1;
@@ -155,7 +155,7 @@ void VulkanSampleApp::createInstance() {
     handleVkResult(vkCreateInstance(&instanceCreateInfo, nullptr, &instance), "Failed to create Vulkan Instance");
 }
 
-void VulkanSampleApp::setupDebugMessenger() {
+void ShadedCubeApp::setupDebugMessenger() {
     if (!enableValidationLayers) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
@@ -172,7 +172,7 @@ void VulkanSampleApp::setupDebugMessenger() {
     handleVkResult(createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "Failed to setup Debug Messenger!");
 }
 
-QueueFamilyIndices VulkanSampleApp::findQueueFamilyIndices(VkPhysicalDevice device) {
+QueueFamilyIndices ShadedCubeApp::findQueueFamilyIndices(VkPhysicalDevice device) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount;
@@ -201,7 +201,7 @@ QueueFamilyIndices VulkanSampleApp::findQueueFamilyIndices(VkPhysicalDevice devi
     return indices;
 }
 
-void VulkanSampleApp::createSurface() {
+void ShadedCubeApp::createSurface() {
    handleVkResult(glfwCreateWindowSurface(instance, window->getWindow(), nullptr, &surface), "Failed to create Window Surface!");
 }
 
@@ -220,7 +220,7 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
     return requiredExtensions.empty();
 }
 
-bool VulkanSampleApp::isDeviceSuitable(VkPhysicalDevice device) {
+bool ShadedCubeApp::isDeviceSuitable(VkPhysicalDevice device) {
     // Add suitability checks as the need arises
     auto indices = findQueueFamilyIndices(device);
     bool extensionsSupported = checkDeviceExtensionSupport(device);
@@ -245,7 +245,7 @@ bool VulkanSampleApp::isDeviceSuitable(VkPhysicalDevice device) {
     return indices.has_value() && extensionsSupported && swapchainAdequate;
 }
 
-void VulkanSampleApp::selectPhysicalDevice() {
+void ShadedCubeApp::selectPhysicalDevice() {
     uint32_t deviceCount;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -267,7 +267,7 @@ void VulkanSampleApp::selectPhysicalDevice() {
         throw std::runtime_error("Failed to find a suitable physical device!");
 }
 
-void VulkanSampleApp::createLogicalDevice() {
+void ShadedCubeApp::createLogicalDevice() {
     auto indices = findQueueFamilyIndices(physicalDevice);
     float queuePriority = 1.0f;
 
@@ -313,7 +313,7 @@ void VulkanSampleApp::createLogicalDevice() {
     vkGetDeviceQueue(device, indices.presentQueue.value(), 0, &presentQueue);
 }
 
-SwapchainSupportDetails VulkanSampleApp::querySwapchainSupport(VkPhysicalDevice device) {
+SwapchainSupportDetails ShadedCubeApp::querySwapchainSupport(VkPhysicalDevice device) {
     SwapchainSupportDetails details;
 
     // Surface Capabilities
@@ -341,7 +341,7 @@ SwapchainSupportDetails VulkanSampleApp::querySwapchainSupport(VkPhysicalDevice 
 }
 
 
-void VulkanSampleApp::createSwapchain() {
+void ShadedCubeApp::createSwapchain() {
     auto swapchainSupport = querySwapchainSupport(physicalDevice);
     auto surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
     auto presentMode = chooseSwapPresentMode(swapchainSupport.presentModes);
@@ -390,7 +390,7 @@ void VulkanSampleApp::createSwapchain() {
     swapchainExtent = extent;
 }
 
-void VulkanSampleApp::createImageViews() {
+void ShadedCubeApp::createImageViews() {
     swapchainImageViews.resize(swapchainImages.size());
 
     for(size_t i = 0; i< swapchainImages.size(); i++) {
@@ -413,7 +413,7 @@ void VulkanSampleApp::createImageViews() {
     }
 }
 
-void VulkanSampleApp::createRenderPass() {
+void ShadedCubeApp::createRenderPass() {
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = swapchainImageFormat;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -454,7 +454,7 @@ void VulkanSampleApp::createRenderPass() {
     handleVkResult(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass), "Failed to create Render Pass!");
 }
 
-void VulkanSampleApp::createDescriptorSetLayouts() {
+void ShadedCubeApp::createDescriptorSetLayouts() {
     descriptorSetLayouts.resize(2);
 
     VkDescriptorSetLayoutBinding uboLayoutBinding = {};
@@ -484,7 +484,7 @@ void VulkanSampleApp::createDescriptorSetLayouts() {
     handleVkResult(vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayouts[1]), "Failed to create a Descriptor Set Layout!");
 }
 
-void VulkanSampleApp::createGraphicsPipeline() {
+void ShadedCubeApp::createGraphicsPipeline() {
     auto vertShaderModule = createShaderModule(device, "shaders/vert.spv");
     auto fragShaderModule = createShaderModule(device, "shaders/frag.spv");
     if (shaderProgram == ShaderProgram::BRIGHT_SHADER) {
@@ -622,7 +622,7 @@ void VulkanSampleApp::createGraphicsPipeline() {
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
-void VulkanSampleApp::createFramebuffers() {
+void ShadedCubeApp::createFramebuffers() {
     swapchainFramebuffers.resize(swapchainImageViews.size());
     for(size_t i = 0; i < swapchainImageViews.size(); i++) {
         VkImageView attachments[] = {
@@ -642,7 +642,7 @@ void VulkanSampleApp::createFramebuffers() {
     }
 }
 
-void VulkanSampleApp::createVertexBuffer() {
+void ShadedCubeApp::createVertexBuffer() {
     // Creating and Allocating the Vertex Buffer
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
     createBuffer(
@@ -661,7 +661,7 @@ void VulkanSampleApp::createVertexBuffer() {
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
-void VulkanSampleApp::createIndexBuffer() {
+void ShadedCubeApp::createIndexBuffer() {
     // Creating and Allocating the Index Buffer
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
     createBuffer(
@@ -680,7 +680,7 @@ void VulkanSampleApp::createIndexBuffer() {
     vkUnmapMemory(device, indexBufferMemory);
 }
 
-void VulkanSampleApp::createUniformTransforms() {
+void ShadedCubeApp::createUniformTransforms() {
     VkDeviceSize bufferSize = sizeof(UniformTransformObject);
 
     uniformTransforms.resize(swapchainImages.size());
@@ -706,7 +706,7 @@ void VulkanSampleApp::createUniformTransforms() {
     }
 }
 
-void VulkanSampleApp::createUniformLights() {
+void ShadedCubeApp::createUniformLights() {
     VkDeviceSize bufferSize = sizeof(UniformLightObject);
 
     uniformLights.resize(swapchainImages.size());
@@ -732,7 +732,7 @@ void VulkanSampleApp::createUniformLights() {
     }
 }
 
-void VulkanSampleApp::updateUniforms(uint32_t currentFrame) {
+void ShadedCubeApp::updateUniforms(uint32_t currentFrame) {
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -789,7 +789,7 @@ void VulkanSampleApp::updateUniforms(uint32_t currentFrame) {
     vkUnmapMemory(device, uniformLightsMemory[currentFrame]);
 }
 
-void VulkanSampleApp::createDescriptorPool() {
+void ShadedCubeApp::createDescriptorPool() {
     VkDescriptorPoolSize poolSize = {};
     poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSize.descriptorCount = static_cast<uint32_t>(swapchainImages.size() * 2);
@@ -803,7 +803,7 @@ void VulkanSampleApp::createDescriptorPool() {
     handleVkResult(vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool), "Failed to create descriptor pool!");
 }
 
-void VulkanSampleApp::createDescriptorSets() {
+void ShadedCubeApp::createDescriptorSets() {
     descriptorSetLayouts.resize(swapchainImages.size());
 
     std::vector<VkDescriptorSetLayout> vertexLayouts(swapchainImages.size(), descriptorSetLayouts[0]);
@@ -864,7 +864,7 @@ void VulkanSampleApp::createDescriptorSets() {
     }
 }
 
-void VulkanSampleApp::createCommandPool() {
+void ShadedCubeApp::createCommandPool() {
     auto queueFamilyIndices = findQueueFamilyIndices(physicalDevice);
 
     VkCommandPoolCreateInfo poolInfo = {};
@@ -875,7 +875,7 @@ void VulkanSampleApp::createCommandPool() {
     handleVkResult(vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool), "Failed to create command pool!");
 }
 
-void VulkanSampleApp::createCommandBuffers() {
+void ShadedCubeApp::createCommandBuffers() {
     commandBuffers.resize(swapchainFramebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo = {};
@@ -920,7 +920,7 @@ void VulkanSampleApp::createCommandBuffers() {
 }
 
 
-void VulkanSampleApp::cleanupSwapchain() {
+void ShadedCubeApp::cleanupSwapchain() {
     for(auto framebuffer : swapchainFramebuffers)
         vkDestroyFramebuffer(device, framebuffer, nullptr);
 
@@ -943,7 +943,7 @@ void VulkanSampleApp::cleanupSwapchain() {
     vkDestroySwapchainKHR(device, swapchain, nullptr);
 }
 
-void VulkanSampleApp::recreateSwapchain() {
+void ShadedCubeApp::recreateSwapchain() {
     vkDeviceWaitIdle(device);
 
     cleanupSwapchain();
@@ -959,7 +959,7 @@ void VulkanSampleApp::recreateSwapchain() {
     createCommandBuffers();
 }
 
-void VulkanSampleApp::createSyncObjects() {
+void ShadedCubeApp::createSyncObjects() {
    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
    renderCompleteSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -978,7 +978,7 @@ void VulkanSampleApp::createSyncObjects() {
    }
 }
 
-void VulkanSampleApp::drawFrame() {
+void ShadedCubeApp::drawFrame() {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
