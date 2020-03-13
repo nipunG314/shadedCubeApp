@@ -172,6 +172,7 @@ class VulkanSampleApp {
         std::vector<VkFence> imagesInFlight;
         size_t currentFrame = 0;
         bool framebufferResized = false;
+        const float rotationSpeed = 2.5f;
 
         // Helpers
         std::vector<const char *> getRequiredExtensions();

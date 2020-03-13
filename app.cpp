@@ -4,7 +4,9 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <glm/detail/type_mat.hpp>
 #include <glm/detail/type_vec.hpp>
+#include <glm/trigonometric.hpp>
 #include <set>
 
 #define GLM_FORCE_RADIANS
@@ -755,10 +757,27 @@ void VulkanSampleApp::updateUniforms(uint32_t currentFrame) {
     );
     ubo.proj[1][1] *= -1;
 
+    glm::mat4 rotMat(1.0f);
+
     UniformLightObject lo = {};
-    lo.lightDirX = glm::vec3(-1.0f, -1.0f, -1.0f);
-    lo.lightDirY = glm::vec3(1.0f, 1.0f, 1.0f);
-    lo.lightDirZ = glm::vec3(0.5f, 0.0f, 0.5f);
+    rotMat = glm::rotate(
+        rotMat,
+        rotationSpeed * time * glm::radians(-45.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f)
+    );
+    lo.lightDirX = glm::vec3(rotMat * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f));
+    rotMat = glm::rotate(
+        rotMat,
+        rotationSpeed * time * glm::radians(-45.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
+    lo.lightDirY = glm::vec3(rotMat * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    rotMat = glm::rotate(
+        rotMat,
+        rotationSpeed * time * glm::radians(-45.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)
+    );
+    lo.lightDirZ = glm::vec3(rotMat * glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
     lo.lightColor = glm::vec3(0.01f);
 
     void *data;
